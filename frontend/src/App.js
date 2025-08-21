@@ -3,7 +3,7 @@ import Exercises from "./pages/Exercises";
 import AddExercise from "./pages/AddExercise";
 import AddWorkoutDay from "./pages/AddWorkoutDay";
 import PlanSemanal from "./pages/PlanSemanal";
-import RegistrarProgreso from "./pages/RegistrarProgreso";
+import ComenzarEntrenamiento from "./pages/ComenzarEntrenamiento";
 import HistorialProgreso from "./pages/HistorialProgreso";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -50,8 +50,8 @@ function App() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/progreso">
-                  Registrar Progreso
+                <Link className="nav-link" to="/comenzar-entrenamiento">
+                  Comenzar Entrenamiento
                 </Link>
               </li>
               <li className="nav-item">
@@ -70,7 +70,10 @@ function App() {
           <Route path="/nuevo-ejercicio" element={<AddExercise />} />
           <Route path="/nuevo-dia" element={<AddWorkoutDay />} />
           <Route path="/plan" element={<PlanSemanal />} />
-          <Route path="/progreso" element={<RegistrarProgreso />} />
+          <Route
+            path="/comenzar-entrenamiento"
+            element={<ComenzarEntrenamiento />}
+          />
           <Route path="/historial" element={<HistorialProgreso />} />
         </Routes>
       </div>

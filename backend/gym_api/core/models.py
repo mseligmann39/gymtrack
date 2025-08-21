@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+# El modelo Exercise no cambia
 class Exercise(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
@@ -10,6 +11,7 @@ class Exercise(models.Model):
     def __str__(self):
         return self.nombre
 
+# El modelo WorkoutDay no cambia
 class WorkoutDay(models.Model):
     DIAS_SEMANA = [
         ('LUN', 'Lunes'),
@@ -24,9 +26,9 @@ class WorkoutDay(models.Model):
     dia_de_la_semana = models.CharField(max_length=3, choices=DIAS_SEMANA)
 
     def __str__(self):
-        # Usamos get_..._display() para obtener el nombre legible del día
         return f"{self.usuario.username} - {self.get_dia_de_la_semana_display()}"
 
+# El modelo WorkoutExercise no cambia
 class WorkoutExercise(models.Model):
     workout_day = models.ForeignKey(WorkoutDay, on_delete=models.CASCADE, related_name="ejercicios")
     ejercicio = models.ForeignKey(Exercise, on_delete=models.CASCADE)
@@ -37,14 +39,23 @@ class WorkoutExercise(models.Model):
     def __str__(self):
         return f"{self.ejercicio.nombre} en {self.workout_day}"
 
-class WorkoutLog(models.Model):
+# ¡NUEVO! Modelo para agrupar los logs de una sesión
+class WorkoutSession(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    ejercicio = models.ForeignKey(Exercise, on_delete=models.CASCADE)
-    fecha = models.DateField()
-    series_realizadas = models.IntegerField()
-    repeticiones_realizadas = models.IntegerField()
-    peso_usado = models.FloatField()
+    workout_day = models.ForeignKey(WorkoutDay, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(auto_now_add=True)
     comentarios = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"Log de {self.ejercicio.nombre} por {self.usuario.username} el {self.fecha}"
+        return f"Sesión de {self.usuario.username} el {self.fecha.strftime('%Y-%m-%d')}"
+
+# ¡MODIFICADO! WorkoutLog ahora se relaciona con WorkoutSession
+class WorkoutLog(models.Model):
+    session = models.ForeignKey(WorkoutSession, related_name='logs', on_delete=models.CASCADE) # Cambio principal aquí
+    ejercicio = models.ForeignKey(Exercise, on_delete=models.CASCADE)
+    series_realizadas = models.IntegerField()
+    repeticiones_realizadas = models.IntegerField()
+    peso_usado = models.FloatField()
+
+    def __str__(self):
+        return f"Log de {self.ejercicio.nombre} en sesión {self.session.id}"
