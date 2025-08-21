@@ -6,6 +6,7 @@ import PlanSemanal from "./pages/PlanSemanal";
 import ComenzarEntrenamiento from "./pages/ComenzarEntrenamiento";
 import HistorialProgreso from "./pages/HistorialProgreso";
 import "bootstrap/dist/css/bootstrap.min.css";
+import EditWorkoutDay from "./pages/EditWorkoutDay";
 
 function App() {
   return (
@@ -75,6 +76,8 @@ function App() {
             element={<ComenzarEntrenamiento />}
           />
           <Route path="/historial" element={<HistorialProgreso />} />
+
+          <Route path="/plan/editar/:id" element={<EditWorkoutDay />} />
         </Routes>
       </div>
     </Router>

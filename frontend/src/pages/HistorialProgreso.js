@@ -3,54 +3,62 @@ import api from "../api";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function HistorialProgreso() {
-  const [logs, setLogs] = useState([]);
+  const [sesiones, setSesiones] = useState([]);
 
   useEffect(() => {
     api
-      .get("workout-logs/")
-      .then((res) => setLogs(res.data))
-      .catch((err) => console.error("Error al cargar logs:", err));
+      .get("workout-sessions/")
+      .then((res) => {
+        const sesionesOrdenadas = res.data.sort(
+          (a, b) => new Date(b.fecha) - new Date(a.fecha)
+        );
+        setSesiones(sesionesOrdenadas);
+      })
+      .catch((err) => console.error("Error al cargar las sesiones:", err));
   }, []);
 
-  // Agrupar logs por ejercicio
-  const agrupadoPorEjercicio = {};
-  logs.forEach((log) => {
-    const nombre = log.ejercicio.nombre;
-    if (!agrupadoPorEjercicio[nombre]) {
-      agrupadoPorEjercicio[nombre] = [];
-    }
-    agrupadoPorEjercicio[nombre].push(log);
-  });
+  const dias = {
+    LUN: "Lunes",
+    MAR: "Martes",
+    MIE: "Miércoles",
+    JUE: "Jueves",
+    VIE: "Viernes",
+    SAB: "Sábado",
+    DOM: "Domingo",
+  };
 
   return (
     <div className="container mt-4">
-      <h2 className="mb-4">📈 Historial de Progreso por Ejercicio</h2>
-      {Object.entries(agrupadoPorEjercicio).map(([nombre, entradas]) => (
-        <div key={nombre} className="mb-4">
-          <h4 className="mb-3">📌 {nombre}</h4>
-          <ul className="list-group">
-            {entradas
-              .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-              .map((log, i) => (
+      <h2 className="mb-4">📈 Historial de Sesiones</h2>
+      {sesiones.map((sesion) => (
+        <div key={sesion.id} className="card mb-4">
+          <div className="card-header">
+            <h5 className="mb-0">
+              🗓️ {new Date(sesion.fecha).toLocaleDateString("es-ES")} -
+              Entrenamiento de{" "}
+              {dias[sesion.workout_day_detalle.dia_de_la_semana]}
+            </h5>
+          </div>
+          <div className="card-body">
+            {sesion.comentarios && (
+              <p className="card-text fst-italic text-muted">
+                "{sesion.comentarios}"
+              </p>
+            )}
+            <ul className="list-group list-group-flush">
+              {sesion.logs.map((log, index) => (
+                // ¡CORRECCIÓN AQUÍ! Se usa una key única para cada elemento.
                 <li
-                  key={i}
-                  className="list-group-item d-flex justify-content-between align-items-center"
+                  key={`${sesion.id}-${log.ejercicio}-${index}`}
+                  className="list-group-item"
                 >
-                  <div>
-                    <strong>{log.fecha}</strong>: {log.series_realizadas}x
-                    {log.repeticiones_realizadas} - {log.peso_usado}kg
-                    {log.comentarios && (
-                      <div
-                        className="fst-italic text-muted"
-                        style={{ marginTop: "0.2rem" }}
-                      >
-                        – {log.comentarios}
-                      </div>
-                    )}
-                  </div>
+                  <strong>{log.ejercicio_detalle.nombre}:</strong>{" "}
+                  {log.series_realizadas}x{log.repeticiones_realizadas} -{" "}
+                  {log.peso_usado}kg
                 </li>
               ))}
-          </ul>
+            </ul>
+          </div>
         </div>
       ))}
     </div>

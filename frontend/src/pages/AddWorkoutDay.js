@@ -3,8 +3,9 @@ import api from "../api";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function AddWorkoutDay() {
-  const [usuarioId] = useState(1); // Temporal: ID fijo. Luego dinámico con login
+  const [usuarioId] = useState(1);
   const [dia, setDia] = useState("LUN");
+  const [nombreRutina, setNombreRutina] = useState(""); // Estado para el nombre
   const [ejerciciosDisponibles, setEjerciciosDisponibles] = useState([]);
   const [ejerciciosSeleccionados, setEjerciciosSeleccionados] = useState([]);
 
@@ -36,10 +37,17 @@ function AddWorkoutDay() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validar que al menos un ejercicio haya sido agregado
+    if (ejerciciosSeleccionados.length === 0) {
+      alert("Debes agregar al menos un ejercicio a la rutina.");
+      return;
+    }
+
     try {
       const { data: workoutDay } = await api.post("workout-days/", {
         usuario: usuarioId,
         dia_de_la_semana: dia,
+        nombre: nombreRutina, // Enviar el nombre
       });
 
       await Promise.all(
@@ -49,16 +57,30 @@ function AddWorkoutDay() {
             ejercicio: parseInt(ex.ejercicio),
             series: ex.series,
             repeticiones: ex.repeticiones,
-            peso_estimado: ex.peso_estimado,
+            peso_estimado: ex.peso_estimado || null, // Enviar null si está vacío
           })
         )
       );
 
       alert("Día de entrenamiento creado correctamente");
       setEjerciciosSeleccionados([]);
+      setNombreRutina(""); // Limpiar el nombre
     } catch (err) {
-      console.error("Error:", err);
-      alert("Hubo un error al guardar");
+      // Manejo de errores mejorado
+      if (
+        err.response &&
+        err.response.data &&
+        err.response.data.non_field_errors
+      ) {
+        alert(`Error de validación: ${err.response.data.non_field_errors[0]}`);
+      } else if (err.response && err.response.data) {
+        // Para otros posibles errores de campo
+        const errorMsg = Object.values(err.response.data).join("\n");
+        alert(`Error: ${errorMsg}`);
+      } else {
+        console.error("Error:", err);
+        alert("Hubo un error al guardar la rutina.");
+      }
     }
   };
 
@@ -86,16 +108,23 @@ function AddWorkoutDay() {
           </select>
         </div>
 
+        <div className="mb-3">
+          <label htmlFor="nombreRutina" className="form-label">
+            Nombre de la Rutina (opcional):
+          </label>
+          <input
+            type="text"
+            id="nombreRutina"
+            className="form-control"
+            value={nombreRutina}
+            onChange={(e) => setNombreRutina(e.target.value)}
+            placeholder="Ej: Rutina de Fuerza, Día de Pecho..."
+          />
+        </div>
         <hr />
-
         <h4>Ejercicios</h4>
-
         {ejerciciosSeleccionados.map((ex, i) => (
-          <div
-            key={i}
-            className="border rounded p-3 mb-3"
-            style={{ backgroundColor: "#f8f9fa" }}
-          >
+          <div key={i} className="border rounded p-3 mb-3 bg-light">
             <div className="mb-3">
               <label htmlFor={`ejercicio-${i}`} className="form-label">
                 Ejercicio
@@ -116,7 +145,6 @@ function AddWorkoutDay() {
                 ))}
               </select>
             </div>
-
             <div className="row">
               <div className="col-md-4 mb-3">
                 <label htmlFor={`series-${i}`} className="form-label">
@@ -134,7 +162,6 @@ function AddWorkoutDay() {
                   min="1"
                 />
               </div>
-
               <div className="col-md-4 mb-3">
                 <label htmlFor={`repeticiones-${i}`} className="form-label">
                   Repeticiones
@@ -151,7 +178,6 @@ function AddWorkoutDay() {
                   min="1"
                 />
               </div>
-
               <div className="col-md-4 mb-3">
                 <label htmlFor={`peso_estimado-${i}`} className="form-label">
                   Peso Estimado
@@ -178,9 +204,7 @@ function AddWorkoutDay() {
         >
           + Agregar ejercicio
         </button>
-
         <br />
-
         <button type="submit" className="btn btn-primary">
           Guardar día
         </button>
