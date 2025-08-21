@@ -6,6 +6,11 @@ from django.utils import timezone
 
 
 class Exercise(models.Model):
+    # ¡CAMBIO AQUÍ! Añadimos la relación con el usuario.
+    # Es opcional (null=True) para los ejercicios globales.
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, null=True, blank=True)
+
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
     musculo_principal = models.CharField(max_length=50)

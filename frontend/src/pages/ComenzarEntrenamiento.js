@@ -74,12 +74,14 @@ function ComenzarEntrenamiento() {
         repeticiones_realizadas: "",
         peso_usado: "",
       });
-      // ¡CORRECCIÓN AQUÍ! La lógica para pasar de vista es más simple y robusta.
+
+      // ¡CORRECCIÓN AQUÍ! Lógica simplificada para la transición.
       if (ejercicioActualIndex < diaSeleccionado.ejercicios.length - 1) {
+        // Si no es el último, simplemente avanzamos al siguiente.
         setEjercicioActualIndex(ejercicioActualIndex + 1);
       } else {
-        // Si es el último ejercicio, simplemente limpiamos el día seleccionado.
-        // Esto hará que React renderice la pantalla de finalización.
+        // Si es el último, ponemos diaSeleccionado a null.
+        // Esto activará la vista de finalización de forma natural.
         setDiaSeleccionado(null);
       }
     } catch (err) {

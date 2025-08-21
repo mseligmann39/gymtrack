@@ -1,27 +1,14 @@
 from rest_framework import serializers
 from .models import Exercise, WorkoutDay, WorkoutExercise, WorkoutLog, WorkoutSession
-# Asegúrate de que User esté importado
 from django.contrib.auth.models import User
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'password')
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            password=validated_data['password']
-        )
-        return user
 
 
 class ExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exercise
-        fields = "__all__"
+        fields = ('id', 'user', 'nombre', 'descripcion',
+                  'musculo_principal', 'video_url')
+        read_only_fields = ('user',)
 
 
 class WorkoutExerciseSerializer(serializers.ModelSerializer):
@@ -33,8 +20,6 @@ class WorkoutExerciseSerializer(serializers.ModelSerializer):
         model = WorkoutExercise
         fields = "__all__"
 
-# ¡CORREGIDO! Serializer de WorkoutDay con la validación correcta
-
 
 class WorkoutDaySerializer(serializers.ModelSerializer):
     ejercicios = WorkoutExerciseSerializer(many=True, read_only=True)
@@ -42,30 +27,26 @@ class WorkoutDaySerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkoutDay
         fields = "__all__"
+        # ¡CORRECCIÓN! Le decimos al serializer que el campo 'usuario'
+        # será manejado por el backend y no vendrá en la petición.
+        read_only_fields = ('usuario',)
 
     def validate(self, data):
         """
         Verifica que no haya otra rutina con el mismo nombre para el mismo usuario y día.
         """
-        # Obtenemos el usuario del ID que viene en los datos, no del request.
-        usuario_id = data.get('usuario').id
-        usuario = User.objects.get(pk=usuario_id)
-
+        usuario = self.context['request'].user
         dia_de_la_semana = data.get('dia_de_la_semana')
         nombre = data.get('nombre')
 
-        # Si el nombre no se provee, no es necesario validar duplicados.
         if not nombre or nombre == 'Mi Rutina':
             return data
 
-        # Construimos la consulta para buscar duplicados
         queryset = WorkoutDay.objects.filter(
             usuario=usuario,
             dia_de_la_semana=dia_de_la_semana,
             nombre=nombre
         )
-
-        # Si estamos actualizando una instancia, la excluimos de la búsqueda
         if self.instance:
             queryset = queryset.exclude(pk=self.instance.pk)
 
@@ -83,13 +64,8 @@ class WorkoutLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkoutLog
         fields = [
-            'id',
-            'session',
-            'ejercicio',
-            'ejercicio_detalle',
-            'series_realizadas',
-            'repeticiones_realizadas',
-            'peso_usado'
+            'id', 'session', 'ejercicio', 'ejercicio_detalle',
+            'series_realizadas', 'repeticiones_realizadas', 'peso_usado'
         ]
         read_only_fields = ['ejercicio_detalle']
 
@@ -103,3 +79,17 @@ class WorkoutSessionSerializer(serializers.ModelSerializer):
         model = WorkoutSession
         fields = ['id', 'usuario', 'workout_day',
                   'workout_day_detalle', 'fecha', 'comentarios', 'logs']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password']
+        )
+        return user

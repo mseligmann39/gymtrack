@@ -8,14 +8,15 @@ const AuthContext = createContext();
 export default AuthContext;
 
 export const AuthProvider = ({ children }) => {
+  // CAMBIO 1: Leer de sessionStorage al iniciar
   const [authTokens, setAuthTokens] = useState(() =>
-    localStorage.getItem("authTokens")
-      ? JSON.parse(localStorage.getItem("authTokens"))
+    sessionStorage.getItem("authTokens")
+      ? JSON.parse(sessionStorage.getItem("authTokens"))
       : null
   );
   const [user, setUser] = useState(() =>
-    localStorage.getItem("authTokens")
-      ? jwtDecode(localStorage.getItem("authTokens"))
+    sessionStorage.getItem("authTokens")
+      ? jwtDecode(sessionStorage.getItem("authTokens"))
       : null
   );
   const [loading, setLoading] = useState(true);
@@ -40,8 +41,9 @@ export const AuthProvider = ({ children }) => {
       if (response.status === 200) {
         setAuthTokens(data);
         setUser(jwtDecode(data.access));
-        localStorage.setItem("authTokens", JSON.stringify(data));
-        navigate("/"); // Redirige al inicio
+        // CAMBIO 2: Guardar en sessionStorage
+        sessionStorage.setItem("authTokens", JSON.stringify(data));
+        navigate("/");
       } else {
         alert("¡Algo salió mal! Verifica tu usuario y contraseña.");
       }
@@ -65,11 +67,16 @@ export const AuthProvider = ({ children }) => {
         }),
       });
       if (response.status === 201) {
-        navigate("/login"); // Redirige a login después del registro
+        navigate("/login");
         alert("¡Usuario registrado con éxito! Por favor, inicia sesión.");
       } else {
+        // ¡MEJORA! Lee el error del backend y lo muestra de forma clara.
         const data = await response.json();
-        alert(`Error: ${JSON.stringify(data)}`);
+        if (data.username) {
+          alert(`Error: ${data.username[0]}`);
+        } else {
+          alert(`Error: ${JSON.stringify(data)}`);
+        }
       }
     } catch (error) {
       console.error("Error en el registro:", error);
@@ -80,7 +87,8 @@ export const AuthProvider = ({ children }) => {
   const logoutUser = () => {
     setAuthTokens(null);
     setUser(null);
-    localStorage.removeItem("authTokens");
+    // CAMBIO 3: Eliminar de sessionStorage
+    sessionStorage.removeItem("authTokens");
     navigate("/login");
   };
 

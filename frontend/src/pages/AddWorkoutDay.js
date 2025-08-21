@@ -3,9 +3,10 @@ import api from "../api";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function AddWorkoutDay() {
-  const [usuarioId] = useState(1);
+  // El ID de usuario hardcodeado se ha eliminado. El backend se encargará de esto.
+
   const [dia, setDia] = useState("LUN");
-  const [nombreRutina, setNombreRutina] = useState(""); // Estado para el nombre
+  const [nombreRutina, setNombreRutina] = useState("");
   const [ejerciciosDisponibles, setEjerciciosDisponibles] = useState([]);
   const [ejerciciosSeleccionados, setEjerciciosSeleccionados] = useState([]);
 
@@ -37,17 +38,16 @@ function AddWorkoutDay() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validar que al menos un ejercicio haya sido agregado
     if (ejerciciosSeleccionados.length === 0) {
       alert("Debes agregar al menos un ejercicio a la rutina.");
       return;
     }
 
     try {
+      // ¡CORRECCIÓN! Ya no enviamos el campo 'usuario'. El backend lo asignará.
       const { data: workoutDay } = await api.post("workout-days/", {
-        usuario: usuarioId,
         dia_de_la_semana: dia,
-        nombre: nombreRutina, // Enviar el nombre
+        nombre: nombreRutina,
       });
 
       await Promise.all(
@@ -57,16 +57,15 @@ function AddWorkoutDay() {
             ejercicio: parseInt(ex.ejercicio),
             series: ex.series,
             repeticiones: ex.repeticiones,
-            peso_estimado: ex.peso_estimado || null, // Enviar null si está vacío
+            peso_estimado: ex.peso_estimado || null,
           })
         )
       );
 
       alert("Día de entrenamiento creado correctamente");
       setEjerciciosSeleccionados([]);
-      setNombreRutina(""); // Limpiar el nombre
+      setNombreRutina("");
     } catch (err) {
-      // Manejo de errores mejorado
       if (
         err.response &&
         err.response.data &&
@@ -74,7 +73,6 @@ function AddWorkoutDay() {
       ) {
         alert(`Error de validación: ${err.response.data.non_field_errors[0]}`);
       } else if (err.response && err.response.data) {
-        // Para otros posibles errores de campo
         const errorMsg = Object.values(err.response.data).join("\n");
         alert(`Error: ${errorMsg}`);
       } else {
@@ -107,7 +105,6 @@ function AddWorkoutDay() {
             <option value="DOM">Domingo</option>
           </select>
         </div>
-
         <div className="mb-3">
           <label htmlFor="nombreRutina" className="form-label">
             Nombre de la Rutina (opcional):
@@ -196,7 +193,6 @@ function AddWorkoutDay() {
             </div>
           </div>
         ))}
-
         <button
           type="button"
           className="btn btn-secondary mb-3"
