@@ -53,7 +53,7 @@ function PlanSemanal() {
   });
 
   return (
-    <div className="container mt-4">
+    <div className="theme-card">
       <h2 className="mb-4">Mi Plan Semanal</h2>
       <div className="row">
         {Object.entries(dias).map(([codigo, nombreDia]) => (

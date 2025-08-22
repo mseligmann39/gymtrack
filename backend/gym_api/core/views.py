@@ -1,6 +1,9 @@
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.db.models import Count, Q
 from .models import Exercise, WorkoutDay, WorkoutExercise, WorkoutLog, WorkoutSession
 from .serializers import (
@@ -15,27 +18,8 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
     def perform_create(self, serializer):
-        new_user = serializer.save()
-        try:
-            template_user = User.objects.get(username='test')
-            template_workout_days = WorkoutDay.objects.filter(
-                usuario=template_user)
-            for day_template in template_workout_days:
-                new_day = WorkoutDay.objects.create(
-                    usuario=new_user,
-                    dia_de_la_semana=day_template.dia_de_la_semana,
-                    nombre=day_template.nombre
-                )
-                for exercise_link in day_template.ejercicios.all():
-                    WorkoutExercise.objects.create(
-                        workout_day=new_day,
-                        ejercicio=exercise_link.ejercicio,
-                        series=exercise_link.series,
-                        repeticiones=exercise_link.repeticiones,
-                        peso_estimado=exercise_link.peso_estimado
-                    )
-        except User.DoesNotExist:
-            pass
+        # SOLUCIÓN: Simplemente creamos el usuario sin copiar ninguna plantilla.
+        serializer.save()
 
 
 class ExerciseViewSet(viewsets.ModelViewSet):
@@ -95,20 +79,65 @@ class WorkoutLogViewSet(viewsets.ModelViewSet):
 class WorkoutSessionViewSet(viewsets.ModelViewSet):
     serializer_class = WorkoutSessionSerializer
     permission_classes = [IsAuthenticated]
-    queryset = WorkoutSession.objects.all()
+    queryset = WorkoutSession.objects.all()  # <-- ESTA LÍNEA ES LA SOLUCIÓN
 
     def get_queryset(self):
         """
-        Filtra las sesiones por el usuario actual.
-        Para la vista de lista (historial), además oculta las sesiones vacías.
+        Filtra las sesiones por el usuario actual y solo muestra las que tienen logs.
         """
-        queryset = WorkoutSession.objects.filter(usuario=self.request.user)
+        return WorkoutSession.objects.filter(usuario=self.request.user).annotate(
+            log_count=Count('logs')
+        ).filter(log_count__gt=0)
 
-        # ¡CORRECCIÓN! Solo aplicamos el filtro de "logs > 0"
-        # cuando se pide la lista completa (en el historial).
-        if self.action == 'list':
-            queryset = queryset.annotate(
-                log_count=Count('logs')
-            ).filter(log_count__gt=0)
+    @action(detail=False, methods=['post'], url_path='complete')
+    def complete_session(self, request):
+        """
+        Crea una sesión de entrenamiento y sus logs en una sola transacción.
+        Este endpoint reemplaza el flujo anterior de crear y luego actualizar.
+        """
+        workout_day_id = request.data.get('workout_day')
+        logs_data = request.data.get('logs', [])
+        comentarios = request.data.get('comentarios', '')
 
-        return queryset
+        if not workout_day_id or not logs_data:
+            return Response(
+                {'error': 'Se requiere workout_day y al menos un log.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            workout_day = WorkoutDay.objects.get(
+                id=workout_day_id, usuario=request.user)
+        except WorkoutDay.DoesNotExist:
+            return Response(
+                {'error': 'El día de entrenamiento no existe o no te pertenece.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        try:
+            with transaction.atomic():
+                # 1. Crear la sesión
+                session = WorkoutSession.objects.create(
+                    usuario=request.user,
+                    workout_day=workout_day,
+                    comentarios=comentarios
+                )
+
+                # 2. Crear los logs
+                for log_data in logs_data:
+                    WorkoutLog.objects.create(
+                        session=session,
+                        ejercicio_id=log_data.get('ejercicio'),
+                        series_realizadas=log_data.get('series_realizadas'),
+                        repeticiones_realizadas=log_data.get('repeticiones_realizadas'),
+                        peso_usado=log_data.get('peso_usado')
+                    )
+
+                serializer = self.get_serializer(session)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response(
+                {'error': f'Ocurrió un error inesperado: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

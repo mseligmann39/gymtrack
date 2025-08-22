@@ -28,7 +28,7 @@ function HistorialProgreso() {
   };
 
   return (
-    <div className="container mt-4">
+    <div className="theme-card">
       <h2 className="mb-4">📈 Historial de Sesiones</h2>
       {sesiones.map((sesion) => (
         <div key={sesion.id} className="card mb-4">

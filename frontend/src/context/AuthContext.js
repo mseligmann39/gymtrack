@@ -8,7 +8,6 @@ const AuthContext = createContext();
 export default AuthContext;
 
 export const AuthProvider = ({ children }) => {
-  // CAMBIO 1: Leer de sessionStorage al iniciar
   const [authTokens, setAuthTokens] = useState(() =>
     sessionStorage.getItem("authTokens")
       ? JSON.parse(sessionStorage.getItem("authTokens"))
@@ -20,8 +19,19 @@ export const AuthProvider = ({ children }) => {
       : null
   );
   const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate();
+
+  // --- INICIO: LÓGICA DEL TEMA ---
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+
+  const toggleTheme = () => {
+    setTheme((curr) => {
+      const newTheme = curr === "light" ? "dark" : "light";
+      localStorage.setItem('theme', newTheme);
+      return newTheme;
+    });
+  };
+  // --- FIN: LÓGICA DEL TEMA ---
 
   const loginUser = async (e) => {
     e.preventDefault();
@@ -41,7 +51,6 @@ export const AuthProvider = ({ children }) => {
       if (response.status === 200) {
         setAuthTokens(data);
         setUser(jwtDecode(data.access));
-        // CAMBIO 2: Guardar en sessionStorage
         sessionStorage.setItem("authTokens", JSON.stringify(data));
         navigate("/");
       } else {
@@ -70,7 +79,6 @@ export const AuthProvider = ({ children }) => {
         navigate("/login");
         alert("¡Usuario registrado con éxito! Por favor, inicia sesión.");
       } else {
-        // ¡MEJORA! Lee el error del backend y lo muestra de forma clara.
         const data = await response.json();
         if (data.username) {
           alert(`Error: ${data.username[0]}`);
@@ -87,7 +95,6 @@ export const AuthProvider = ({ children }) => {
   const logoutUser = () => {
     setAuthTokens(null);
     setUser(null);
-    // CAMBIO 3: Eliminar de sessionStorage
     sessionStorage.removeItem("authTokens");
     navigate("/login");
   };
@@ -98,6 +105,8 @@ export const AuthProvider = ({ children }) => {
     loginUser: loginUser,
     logoutUser: logoutUser,
     registerUser: registerUser,
+    theme: theme, // <-- Exponer tema
+    toggleTheme: toggleTheme, // <-- Exponer función
   };
 
   useEffect(() => {

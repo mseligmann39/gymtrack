@@ -1,0 +1,106 @@
+/* Estilos específicos del layout del Dashboard */
+
+.dashboard-container {
+  padding: 2rem;
+}
+
+.theme-switcher {
+  text-align: right;
+  margin-bottom: 1rem;
+}
+
+.theme-switcher button {
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: bold;
+}
+
+/* Estilos de la tarjeta de bienvenida */
+.welcome-card .quote {
+  font-style: italic;
+  margin: 1rem 0;
+}
+
+.welcome-card strong {
+  color: var(--dark-accent-yellow); /* Usar variable global */
+}
+
+.light-theme .welcome-card strong {
+  color: var(--light-accent-red);
+}
+
+/* Estilos de la tarjeta de próximo entrenamiento */
+.next-workout-card .btn-start-workout, .next-workout-card .btn-create-routine {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.8rem 1.5rem;
+  background-color: var(--dark-accent-red);
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: transform 0.2s;
+}
+
+.light-theme .next-workout-card .btn-start-workout, .light-theme .next-workout-card .btn-create-routine {
+    background-color: var(--light-accent-red);
+}
+
+.next-workout-card .btn-start-workout:hover, .next-workout-card .btn-create-routine:hover {
+    transform: scale(1.05);
+}
+
+/* Estilos del resumen semanal */
+.week-summary-card .week-days {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 0;
+}
+
+.day-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.day-summary .checkmark {
+    font-size: 1rem;
+}
+
+/* Colores del tema aplicados a los días */
+.dark-theme .day-summary {
+  background-color: #4f5561;
+  color: #c1c1c1;
+}
+.dark-theme .day-summary.assigned {
+  border: 2px solid var(--dark-accent-orange);
+  color: white;
+}
+.dark-theme .day-summary.completed {
+  background-color: var(--dark-success);
+  color: white;
+  border-color: var(--dark-success);
+}
+
+.light-theme .day-summary {
+  background-color: #e9ecef;
+  color: #6c757d;
+}
+.light-theme .day-summary.assigned {
+  border: 2px solid var(--light-accent-red);
+  color: #333;
+}
+.light-theme .day-summary.completed {
+  background-color: var(--light-success);
+  color: white;
+  border-color: var(--light-success);
+}

@@ -2,31 +2,14 @@ import React, { useEffect, useState } from "react";
 import api from "../api";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-// --- Funciones de Ayuda (sin cambios) ---
-const getDayOfWeekNumber = (dayCode) => {
-  const days = { LUN: 1, MAR: 2, MIE: 3, JUE: 4, VIE: 5, SAB: 6, DOM: 0 };
-  return days[dayCode];
-};
-
-const getMostRecentDay = (dayOfWeek) => {
-  const today = new Date();
-  const todayDay = today.getDay() === 0 ? 7 : today.getDay();
-  const targetDay = dayOfWeek === 0 ? 7 : dayOfWeek;
-  let mostRecentDate = new Date(today);
-  let dayDifference = todayDay - targetDay;
-  if (dayDifference < 0) {
-    dayDifference += 7;
-  }
-  mostRecentDate.setDate(today.getDate() - dayDifference);
-  return mostRecentDate.toISOString().split("T")[0];
-};
-
 function ComenzarEntrenamiento() {
-  const [usuarioId] = useState(1);
+  const [usuarioId] = useState(1); // Esto debería venir del contexto de autenticación
   const [diasEntrenamiento, setDiasEntrenamiento] = useState([]);
-  const [sesionActiva, setSesionActiva] = useState(null);
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
   const [ejercicioActualIndex, setEjercicioActualIndex] = useState(0);
+  const [logs, setLogs] = useState([]); // Almacena los logs de los ejercicios completados
+  const [isFinished, setIsFinished] = useState(false); // Controla la vista de finalización
+
   const [formData, setFormData] = useState({
     series_realizadas: "",
     repeticiones_realizadas: "",
@@ -42,92 +25,79 @@ function ComenzarEntrenamiento() {
       .catch((err) => console.error("Error al cargar días:", err));
   }, [usuarioId]);
 
-  const handleComenzarEntrenamiento = async (dia) => {
-    const dayOfWeek = getDayOfWeekNumber(dia.dia_de_la_semana);
-    const fecha = getMostRecentDay(dayOfWeek);
-    try {
-      const res = await api.post("workout-sessions/", {
-        usuario: usuarioId,
-        workout_day: dia.id,
-        fecha: fecha,
-      });
-      setDiaSeleccionado(dia);
-      setSesionActiva(res.data);
-    } catch (err) {
-      console.error("Error al iniciar sesión:", err);
-      alert("No se pudo iniciar la sesión de entrenamiento.");
-    }
+  const handleComenzarEntrenamiento = (dia) => {
+    setDiaSeleccionado(dia);
+    setEjercicioActualIndex(0);
+    setLogs([]);
+    setIsFinished(false);
   };
 
-  const handleSiguienteEjercicio = async (e) => {
+  const handleSiguienteEjercicio = (e) => {
     e.preventDefault();
     const ejercicioActual = diaSeleccionado.ejercicios[ejercicioActualIndex];
-    const logData = {
-      session: sesionActiva.id,
-      ejercicio: ejercicioActual.ejercicio,
+
+    // Añade el log al estado local en lugar de enviarlo a la API
+    const nuevoLog = {
+      ejercicio: ejercicioActual.ejercicio, // Solo el ID
       ...formData,
     };
-    try {
-      await api.post("workout-logs/", logData);
-      setFormData({
-        series_realizadas: "",
-        repeticiones_realizadas: "",
-        peso_usado: "",
-      });
+    setLogs([...logs, nuevoLog]);
 
-      // ¡CORRECCIÓN AQUÍ! Lógica simplificada para la transición.
-      if (ejercicioActualIndex < diaSeleccionado.ejercicios.length - 1) {
-        // Si no es el último, simplemente avanzamos al siguiente.
-        setEjercicioActualIndex(ejercicioActualIndex + 1);
-      } else {
-        // Si es el último, ponemos diaSeleccionado a null.
-        // Esto activará la vista de finalización de forma natural.
-        setDiaSeleccionado(null);
-      }
-    } catch (err) {
-      console.error("Error al guardar el log:", err);
-      alert("Error al guardar el progreso del ejercicio.");
+    // Limpia el formulario
+    setFormData({
+      series_realizadas: "",
+      repeticiones_realizadas: "",
+      peso_usado: "",
+    });
+
+    // Avanza al siguiente ejercicio o a la pantalla de finalización
+    if (ejercicioActualIndex < diaSeleccionado.ejercicios.length - 1) {
+      setEjercicioActualIndex(ejercicioActualIndex + 1);
+    } else {
+      setIsFinished(true); // Muestra la pantalla para finalizar
     }
   };
 
   const handleFinalizar = async () => {
     const comentario = `Dificultad: ${dificultad}. ${comentarioFinal}`;
+    const finalPayload = {
+      workout_day: diaSeleccionado.id,
+      comentarios: comentario,
+      logs: logs,
+    };
+
     try {
-      await api.patch(`workout-sessions/${sesionActiva.id}/`, {
-        comentarios: comentario,
-      });
+      // Envía todo el paquete a la nueva ruta del backend
+      await api.post("workout-sessions/complete/", finalPayload);
       alert("¡Entrenamiento finalizado y guardado!");
+
+      // Resetea el estado para permitir un nuevo entrenamiento
       setDiaSeleccionado(null);
-      setSesionActiva(null);
       setEjercicioActualIndex(0);
+      setLogs([]);
+      setIsFinished(false);
       setComentarioFinal("");
       setDificultad("Normal");
     } catch (err) {
-      console.error("Error al finalizar:", err);
+      console.error("Error al finalizar:", err.response ? err.response.data : err);
       alert("Hubo un error al finalizar el entrenamiento.");
     }
   };
 
-  // ... (el resto del código de renderizado es igual y no necesita cambios)
   const getNombreRutina = (dia) => {
     const diasMap = {
-      LUN: "Lunes",
-      MAR: "Martes",
-      MIE: "Miércoles",
-      JUE: "Jueves",
-      VIE: "Viernes",
-      SAB: "Sábado",
-      DOM: "Domingo",
+      LUN: "Lunes", MAR: "Martes", MIE: "Miércoles",
+      JUE: "Jueves", VIE: "Viernes", SAB: "Sábado", DOM: "Domingo",
     };
     const nombreDia = diasMap[dia.dia_de_la_semana];
     const base = `Rutina ${nombreDia}`;
-    if (dia.nombre && dia.nombre !== "Mi Rutina") {
-      return `${base} (${dia.nombre})`;
-    }
-    return base;
+    return dia.nombre ? `${base} (${dia.nombre})` : base;
   };
 
-  if (!sesionActiva) {
+  // --- Vistas de Renderizado ---
+
+  // Vista 1: Selección de Rutina
+  if (!diaSeleccionado) {
     return (
       <div className="container mt-4">
         <h2 className="mb-4">Comenzar Entrenamiento</h2>
@@ -148,101 +118,15 @@ function ComenzarEntrenamiento() {
     );
   }
 
-  if (sesionActiva && diaSeleccionado) {
-    const ejercicio = diaSeleccionado.ejercicios[ejercicioActualIndex];
-    return (
-      <div className="container mt-4">
-        <h2 className="mb-4">
-          Ejercicio {ejercicioActualIndex + 1} de{" "}
-          {diaSeleccionado.ejercicios.length}:{" "}
-          {ejercicio.ejercicio_detalle.nombre}
-        </h2>
-        <p className="text-muted">
-          Planificado: {ejercicio.series}x{ejercicio.repeticiones} reps con{" "}
-          {ejercicio.peso_estimado || "N/A"} kg
-        </p>
-
-        <form onSubmit={handleSiguienteEjercicio}>
-          <div className="mb-3">
-            <label htmlFor="series_realizadas" className="form-label">
-              Series realizadas:
-            </label>
-            <input
-              type="number"
-              id="series_realizadas"
-              name="series_realizadas"
-              className="form-control"
-              value={formData.series_realizadas}
-              onChange={(e) =>
-                setFormData({ ...formData, series_realizadas: e.target.value })
-              }
-              required
-              min="0"
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="repeticiones_realizadas" className="form-label">
-              Repeticiones realizadas:
-            </label>
-            <input
-              type="number"
-              id="repeticiones_realizadas"
-              name="repeticiones_realizadas"
-              className="form-control"
-              value={formData.repeticiones_realizadas}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  repeticiones_realizadas: e.target.value,
-                })
-              }
-              required
-              min="0"
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="peso_usado" className="form-label">
-              Peso usado (kg):
-            </label>
-            <input
-              type="number"
-              id="peso_usado"
-              name="peso_usado"
-              className="form-control"
-              value={formData.peso_usado}
-              onChange={(e) =>
-                setFormData({ ...formData, peso_usado: e.target.value })
-              }
-              required
-              min="0"
-              step="0.1"
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">
-            {ejercicioActualIndex < diaSeleccionado.ejercicios.length - 1
-              ? "Siguiente Ejercicio"
-              : "Finalizar Ejercicios"}
-          </button>
-        </form>
-      </div>
-    );
-  }
-
-  if (sesionActiva && !diaSeleccionado) {
+  // Vista 2: Pantalla de Finalización
+  if (isFinished) {
     return (
       <div className="container mt-4">
         <h2 className="mb-4">¡Rutina Completada!</h2>
         <p>Añade un comentario sobre tu sesión de hoy.</p>
         <div className="mb-3">
-          <label htmlFor="dificultad" className="form-label">
-            ¿Qué tan difícil te pareció?
-          </label>
-          <select
-            id="dificultad"
-            className="form-select"
-            value={dificultad}
-            onChange={(e) => setDificultad(e.target.value)}
-          >
+          <label htmlFor="dificultad" className="form-label">¿Qué tan difícil te pareció?</label>
+          <select id="dificultad" className="form-select" value={dificultad} onChange={(e) => setDificultad(e.target.value)}>
             <option>Muy fácil</option>
             <option>Normal</option>
             <option>Difícil</option>
@@ -250,17 +134,8 @@ function ComenzarEntrenamiento() {
           </select>
         </div>
         <div className="mb-3">
-          <label htmlFor="comentarioFinal" className="form-label">
-            Comentarios adicionales (opcional):
-          </label>
-          <textarea
-            id="comentarioFinal"
-            className="form-control"
-            rows="3"
-            value={comentarioFinal}
-            onChange={(e) => setComentarioFinal(e.target.value)}
-            placeholder="¿Cómo te sentiste? ¿Alguna molestia?"
-          />
+          <label htmlFor="comentarioFinal" className="form-label">Comentarios adicionales (opcional):</label>
+          <textarea id="comentarioFinal" className="form-control" rows="3" value={comentarioFinal} onChange={(e) => setComentarioFinal(e.target.value)} placeholder="¿Cómo te sentiste? ¿Alguna molestia?" />
         </div>
         <button onClick={handleFinalizar} className="btn btn-success">
           Guardar y Finalizar Entrenamiento
@@ -269,7 +144,36 @@ function ComenzarEntrenamiento() {
     );
   }
 
-  return <div className="container mt-4">Cargando...</div>;
+  // Vista 3: Durante el Entrenamiento (Ejercicio Actual)
+  const ejercicio = diaSeleccionado.ejercicios[ejercicioActualIndex];
+  return (
+    <div className="container mt-4">
+      <h2 className="mb-4">
+        Ejercicio {ejercicioActualIndex + 1} de {diaSeleccionado.ejercicios.length}: {ejercicio.ejercicio_detalle.nombre}
+      </h2>
+      <p className="text-muted">
+        Planificado: {ejercicio.series}x{ejercicio.repeticiones} reps con {ejercicio.peso_estimado || "N/A"} kg
+      </p>
+
+      <form onSubmit={handleSiguienteEjercicio}>
+        <div className="mb-3">
+          <label htmlFor="series_realizadas" className="form-label">Series realizadas:</label>
+          <input type="number" id="series_realizadas" name="series_realizadas" className="form-control" value={formData.series_realizadas} onChange={(e) => setFormData({ ...formData, series_realizadas: e.target.value })} required min="0" />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="repeticiones_realizadas" className="form-label">Repeticiones realizadas:</label>
+          <input type="number" id="repeticiones_realizadas" name="repeticiones_realizadas" className="form-control" value={formData.repeticiones_realizadas} onChange={(e) => setFormData({ ...formData, repeticiones_realizadas: e.target.value })} required min="0" />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="peso_usado" className="form-label">Peso usado (kg):</label>
+          <input type="number" id="peso_usado" name="peso_usado" className="form-control" value={formData.peso_usado} onChange={(e) => setFormData({ ...formData, peso_usado: e.target.value })} required min="0" step="0.1" />
+        </div>
+        <button type="submit" className="btn btn-primary">
+          {ejercicioActualIndex < diaSeleccionado.ejercicios.length - 1 ? "Siguiente Ejercicio" : "Finalizar Ejercicios"}
+        </button>
+      </form>
+    </div>
+  );
 }
 
 export default ComenzarEntrenamiento;
