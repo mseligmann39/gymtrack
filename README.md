@@ -39,7 +39,7 @@ GymTrack es una herramienta completa que permite a los usuarios crear, gestionar
     <br><em>Vista principal de la aplicación.</em><br><br>
     <img src="screenshots/Dashboard.png" alt="Dashboard del usuario" width="80%">
     <br><em>Dashboard del usuario.</em><br><br>
-    <img src="screenshots/PlanSemanal.png" alt="Plan semanal de entrenamiento" width="80%">
+    <img src="screenshots/Plan-semanal.png" alt="Plan semanal de entrenamiento" width="80%">
     <br><em>Plan semanal de entrenamiento.</em><br><br>
     <img src="screenshots/Historial.png" alt="Historial y progreso" width="80%">
     <br><em>Historial y progreso.</em><br><br>
