@@ -99,7 +99,7 @@ function ComenzarEntrenamiento() {
   // Vista 1: Selección de Rutina
   if (!diaSeleccionado) {
     return (
-      <div className="container mt-4">
+      <div className="container mt-4 theme-card">
         <h2 className="mb-4">Comenzar Entrenamiento</h2>
         <p>Selecciona una rutina para comenzar:</p>
         <div className="list-group mb-3">
@@ -107,7 +107,7 @@ function ComenzarEntrenamiento() {
             <button
               key={dia.id}
               type="button"
-              className="list-group-item list-group-item-action"
+              className="theme-button"
               onClick={() => handleComenzarEntrenamiento(dia)}
             >
               {getNombreRutina(dia)}
@@ -121,7 +121,7 @@ function ComenzarEntrenamiento() {
   // Vista 2: Pantalla de Finalización
   if (isFinished) {
     return (
-      <div className="container mt-4">
+      <div className="container mt-4 theme-card">
         <h2 className="mb-4">¡Rutina Completada!</h2>
         <p>Añade un comentario sobre tu sesión de hoy.</p>
         <div className="mb-3">
@@ -147,7 +147,7 @@ function ComenzarEntrenamiento() {
   // Vista 3: Durante el Entrenamiento (Ejercicio Actual)
   const ejercicio = diaSeleccionado.ejercicios[ejercicioActualIndex];
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 theme-card">
       <h2 className="mb-4">
         Ejercicio {ejercicioActualIndex + 1} de {diaSeleccionado.ejercicios.length}: {ejercicio.ejercicio_detalle.nombre}
       </h2>

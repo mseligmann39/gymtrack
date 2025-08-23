@@ -83,7 +83,7 @@ function AddWorkoutDay() {
   };
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 theme-card">
       <h2 className="mb-4">Crear Día de Entrenamiento</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
@@ -121,7 +121,7 @@ function AddWorkoutDay() {
         <hr />
         <h4>Ejercicios</h4>
         {ejerciciosSeleccionados.map((ex, i) => (
-          <div key={i} className="border rounded p-3 mb-3 bg-light">
+          <div key={i} className="border rounded p-3 mb-3 selected-exercise">
             <div className="mb-3">
               <label htmlFor={`ejercicio-${i}`} className="form-label">
                 Ejercicio

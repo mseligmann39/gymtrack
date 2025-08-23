@@ -37,7 +37,8 @@
   padding: 0;
 }
 
-.sidebar-nav li a, .sidebar-nav li .nav-link {
+.sidebar-nav li a,
+.sidebar-nav li .nav-link {
   display: flex;
   align-items: center;
   padding: 0.9rem 1.5rem;
@@ -90,7 +91,8 @@
 .dark-theme .sidebar-header .brand-logo {
   color: var(--dark-accent-orange);
 }
-.dark-theme .sidebar-nav li a, .dark-theme .sidebar-nav li .nav-link {
+.dark-theme .sidebar-nav li a,
+.dark-theme .sidebar-nav li .nav-link {
   color: #ccc;
 }
 .dark-theme .sidebar-nav li a:hover {
@@ -117,7 +119,8 @@
 .light-theme .sidebar-header .brand-logo {
   color: var(--light-accent-red);
 }
-.light-theme .sidebar-nav li a, .light-theme .sidebar-nav li .nav-link {
+.light-theme .sidebar-nav li a,
+.light-theme .sidebar-nav li .nav-link {
   color: #555;
 }
 .light-theme .sidebar-nav li a:hover {
@@ -138,5 +141,20 @@
 
 /* Estilo para el contenedor de página que usaremos en Exercises, etc. */
 .page-container {
-    padding: 1rem;
+  padding: 1rem;
+}
+
+app-container {
+  display: flex;
+  min-height: 100vh; /* <-- AÑADE ESTA LÍNEA */
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.main-content {
+  margin-left: 250px;
+  flex-grow: 1;
+  padding: 1rem;
+  width: calc(100% - 250px);
+  display: flex; /* <-- AÑADE ESTA LÍNEA */
+  flex-direction: column; /* <-- AÑADE ESTA LÍNEA */
 }

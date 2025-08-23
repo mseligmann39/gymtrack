@@ -45,8 +45,8 @@ function Exercises() {
         </Link>
       </div>
       <div className="table-responsive">
-        <table className="table table-striped table-bordered">
-          <thead className="table-dark">
+        <table className="table table-bordered theme-table">
+          <thead>
             <tr>
               <th>Nombre</th>
               <th>Músculo Principal</th>

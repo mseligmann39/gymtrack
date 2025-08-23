@@ -31,7 +31,7 @@ function HistorialProgreso() {
     <div className="theme-card">
       <h2 className="mb-4">📈 Historial de Sesiones</h2>
       {sesiones.map((sesion) => (
-        <div key={sesion.id} className="card mb-4">
+        <div key={sesion.id} className="theme-card mb-4">
           <div className="card-header">
             <h5 className="mb-0">
               🗓️ {new Date(sesion.fecha).toLocaleDateString("es-ES")} -

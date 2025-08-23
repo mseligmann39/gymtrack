@@ -61,8 +61,8 @@ function PlanSemanal() {
             <h3>{nombreDia}</h3>
             {planPorDia[codigo].length > 0 ? (
               planPorDia[codigo].map((diaEntrenamiento) => (
-                <div key={diaEntrenamiento.id} className="card mb-3 shadow-sm">
-                  <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <div key={diaEntrenamiento.id} className="theme-card mb-3">
+                  <div className="theme-card-header d-flex justify-content-between align-items-center">
                     <h5 className="mb-0">📅 {diaEntrenamiento.nombre}</h5>
                     {/* BOTONES DE ACCIÓN */}
                     <div>
@@ -83,7 +83,7 @@ function PlanSemanal() {
                   <div className="card-body">
                     <ul className="list-group list-group-flush">
                       {diaEntrenamiento.ejercicios.map((ex, idx) => (
-                        <li key={idx} className="list-group-item">
+                        <li key={idx} className="list-group-item theme-list-item">
                           <strong>{ex.ejercicio_detalle.nombre}</strong> (
                           {ex.series}x{ex.repeticiones}
                           {ex.peso_estimado ? ` - ${ex.peso_estimado}kg` : ""})

@@ -32,7 +32,7 @@ function AddExercise() {
   };
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 theme-card">
       <h2 className="mb-4">Crear Nuevo Ejercicio</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
