@@ -1,41 +1,79 @@
 # GymTrack
 
-GymTrack es una aplicación web para gestionar rutinas de gimnasio, creada con Django REST Framework para el backend y React para el frontend. Permite a los usuarios crear y gestionar sus rutinas, agregar ejercicios, ver su progreso y planificar su semana de entrenamiento.
+<div align="center">
+  <p>
+    <strong>Una aplicación web para gestionar tus rutinas de gimnasio.</strong>
+  </p>
+  <p>
+    Creada con Django REST Framework para el backend y React para el frontend.
+  </p>
+  <p>
+    <img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white" alt="Django">
+    <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React">
+  </p>
+</div>
 
 ---
 
-## Tecnologías
+## 📝 Descripción
 
-- Backend: Django + Django REST Framework  
-- Frontend: React  
-- Comunicación: API REST consumida desde React  
+GymTrack es una herramienta completa que permite a los usuarios crear, gestionar y seguir sus rutinas de entrenamiento. La aplicación facilita la planificación semanal, el registro del progreso y la personalización de los ejercicios, todo a través de una interfaz limpia e intuitiva.
 
 ---
 
-## Funcionalidades principales
+## ✨ Funcionalidades principales
 
-- Crear, modificar y eliminar ejercicios  
-- Crear rutinas personalizadas  
-- Registrar progreso diario  
-- Visualizar historial de progreso  
-- Planificar y consultar el plan semanal de entrenamiento  
+- **Gestión de ejercicios:** Crea, modifica y elimina ejercicios de tu biblioteca personal.
+- **Rutinas personalizadas:** Diseña tus propias rutinas de entrenamiento adaptadas a tus objetivos.
+- **Seguimiento de progreso:** Registra tus sesiones diarias y visualiza tu historial para ver tu evolución.
+- **Planificación semanal:** Organiza tu semana de entrenamiento y consulta tu plan de un vistazo.
 
 ---
 
-## Instalación
+<details>
+  <summary>📸 Ver capturas de pantalla</summary>
+  <br>
+  
+  <p align="center">
+    <img src="screenshots/01-vista-principal.png" alt="Vista principal de la aplicación" width="80%">
+    <br><em>Vista principal de la aplicación.</em><br><br>
+    <img src="screenshots/02-dashboard-usuario.png" alt="Dashboard del usuario" width="80%">
+    <br><em>Dashboard del usuario.</em><br><br>
+    <img src="screenshots/03-plan-semanal.png" alt="Plan semanal de entrenamiento" width="80%">
+    <br><em>Plan semanal de entrenamiento.</em><br><br>
+    <img src="screenshots/04-historial.png" alt="Historial y progreso" width="80%">
+    <br><em>Historial y progreso.</em><br><br>
+    <img src="screenshots/05-ejercicios.png" alt="Lista de ejercicios" width="80%">
+    <br><em>Lista de ejercicios.</em><br><br>
+  </p>
+</details>
 
-### Backend
+---
+
+## 🛠️ Tecnologías utilizadas
+
+- **Backend:** Django, Django REST Framework
+- **Frontend:** React
+- **Comunicación:** API REST
+
+---
+
+## 🚀 Instalación y uso
+
+Sigue estos pasos para levantar el proyecto en tu entorno local.
+
+### **Backend**
 
 ```bash
 cd backend
 python -m venv env
-source env/bin/activate  # Windows: env\Scripts\activate
+source env/bin/activate  # En Windows: env\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
 
-### Frontend
+### **Frontend**
 
 ```bash
 cd frontend
@@ -43,28 +81,25 @@ npm install
 npm start
 ```
 
----
+Una vez que ambos servidores estén corriendo:
 
-## Uso
-
-1. Abre la aplicación en tu navegador (por defecto `http://localhost:3000`).  
-2. Navega entre las páginas para gestionar ejercicios, planes y progreso.  
-3. La aplicación se comunica con el backend para almacenar y recuperar datos.  
+1.  Abre tu navegador y ve a `http://localhost:3000`.
+2.  Navega entre las diferentes secciones para gestionar tus ejercicios, planes y progreso.
 
 ---
 
-## Contribuciones
+## 🤝 Contribuciones
 
-¡Las contribuciones son bienvenidas! Puedes abrir issues o pull requests para mejorar el proyecto.
-
----
-
-## Licencia
-
-Este proyecto está bajo la licencia MIT.
+¡Las contribuciones son siempre bienvenidas! Si tienes ideas para mejorar el proyecto, no dudes en abrir un _issue_ para discutirlo o enviar un _pull request_ con tus cambios.
 
 ---
 
-## Autor
+## 📄 Licencia
 
-Maximiliano Seligmann
+Este proyecto está bajo la [Licencia MIT](LICENSE).
+
+---
+
+## 👨‍💻 Autor
+
+- **Maximiliano Seligmann**
