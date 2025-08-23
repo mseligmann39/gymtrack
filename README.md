@@ -35,16 +35,20 @@ GymTrack es una herramienta completa que permite a los usuarios crear, gestionar
   <br>
   
   <p align="center">
-    <img src="screenshots/01-vista-principal.png" alt="Vista principal de la aplicación" width="80%">
+    <img src="screenshots/Login.png" alt="Vista principal de la aplicación" width="80%">
     <br><em>Vista principal de la aplicación.</em><br><br>
-    <img src="screenshots/02-dashboard-usuario.png" alt="Dashboard del usuario" width="80%">
+    <img src="screenshots/Dashboard.png" alt="Dashboard del usuario" width="80%">
     <br><em>Dashboard del usuario.</em><br><br>
-    <img src="screenshots/03-plan-semanal.png" alt="Plan semanal de entrenamiento" width="80%">
+    <img src="screenshots/PlanSemanal.png" alt="Plan semanal de entrenamiento" width="80%">
     <br><em>Plan semanal de entrenamiento.</em><br><br>
-    <img src="screenshots/04-historial.png" alt="Historial y progreso" width="80%">
+    <img src="screenshots/Historial.png" alt="Historial y progreso" width="80%">
     <br><em>Historial y progreso.</em><br><br>
-    <img src="screenshots/05-ejercicios.png" alt="Lista de ejercicios" width="80%">
+    <img src="screenshots/Lista-ejercicios.png" alt="Lista de ejercicios" width="80%">
     <br><em>Lista de ejercicios.</em><br><br>
+    <img src="screenshots/Ejercicio-entrenamiento.png" alt="Nuevo ejercicio" width="80%">
+    <br><em>Ejercicio en entrenamiento.</em><br><br>
+    <img src="screenshots/Comenzar-entrenamiento.png" alt="Nuevo día de entrenamiento" width="80%">
+    <br><em>Comienzo de entrenamiento.</em><br><br>
   </p>
 </details>
 
